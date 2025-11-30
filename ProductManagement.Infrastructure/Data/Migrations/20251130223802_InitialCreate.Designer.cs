@@ -12,7 +12,7 @@ using ProductManagement.Infrastructure.Data;
 namespace ProductManagement.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ProductDbContext))]
-    [Migration("20251130154058_InitialCreate")]
+    [Migration("20251130223802_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -73,7 +73,7 @@ namespace ProductManagement.Infrastructure.Data.Migrations
 
                     b.HasIndex("Name", "UserId")
                         .IsUnique()
-                        .HasFilter("[IsDeleted] = 0");
+                        .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("Products");
                 });

@@ -70,7 +70,7 @@ namespace ProductManagement.Infrastructure.Data.Migrations
 
                     b.HasIndex("Name", "UserId")
                         .IsUnique()
-                        .HasFilter("[IsDeleted] = 0");
+                        .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("Products");
                 });

@@ -57,7 +57,7 @@ namespace ProductManagement.Infrastructure.Data
                 entity.HasIndex(p => p.CreatedAt);
                 entity.HasIndex(p => new { p.Name, p.UserId })
                     .IsUnique()
-                    .HasFilter("[IsDeleted] = 0");
+                    .HasFilter("\"IsDeleted\" = false");
 
                 entity.HasQueryFilter(p => !p.IsDeleted);
             });

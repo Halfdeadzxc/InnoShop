@@ -50,7 +50,7 @@ namespace ProductManagement.Infrastructure.Data.Migrations
                 table: "Products",
                 columns: new[] { "Name", "UserId" },
                 unique: true,
-                filter: "[IsDeleted] = 0");
+                filter: "\"IsDeleted\" = false");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Products_UserId",
