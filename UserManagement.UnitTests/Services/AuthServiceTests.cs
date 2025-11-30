@@ -38,7 +38,6 @@ namespace UserManagement.Application.UnitTests.Services
         [Fact]
         public async Task RegisterAsync_ValidData_RegistersUser()
         {
-            // Arrange
             var registerDto = new RegisterUserDto
             {
                 FirstName = "Test",
@@ -56,10 +55,8 @@ namespace UserManagement.Application.UnitTests.Services
             _userRepositoryMock.Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
 
-            // Act
             var result = await _authService.RegisterAsync(registerDto);
 
-            // Assert
             Assert.NotNull(result);
             Assert.Equal(registerDto.Email, result.Email);
             Assert.Equal(registerDto.FirstName, result.FirstName);
@@ -71,7 +68,6 @@ namespace UserManagement.Application.UnitTests.Services
         [Fact]
         public async Task RegisterAsync_EmailAlreadyExists_ThrowsConflictException()
         {
-            // Arrange
             var registerDto = new RegisterUserDto
             {
                 Email = "existing@example.com",
@@ -81,7 +77,6 @@ namespace UserManagement.Application.UnitTests.Services
             _userRepositoryMock.Setup(x => x.ExistsByEmailAsync(registerDto.Email, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
 
-            // Act & Assert
             await Assert.ThrowsAsync<ConflictException>(() =>
                 _authService.RegisterAsync(registerDto));
         }
@@ -89,7 +84,6 @@ namespace UserManagement.Application.UnitTests.Services
         [Fact]
         public async Task RegisterAsync_WeakPassword_ThrowsValidationException()
         {
-            // Arrange
             var registerDto = new RegisterUserDto
             {
                 Email = "test@example.com",
@@ -101,7 +95,6 @@ namespace UserManagement.Application.UnitTests.Services
             _passwordHasherMock.Setup(x => x.IsPasswordStrong(registerDto.Password))
                 .Returns(false);
 
-            // Act & Assert
             await Assert.ThrowsAsync<ValidationException>(() =>
                 _authService.RegisterAsync(registerDto));
         }
@@ -109,7 +102,6 @@ namespace UserManagement.Application.UnitTests.Services
         [Fact]
         public async Task LoginAsync_ValidCredentials_ReturnsAuthResponse()
         {
-            // Arrange
             var loginDto = new LoginDto
             {
                 Email = "test@example.com",
@@ -129,10 +121,8 @@ namespace UserManagement.Application.UnitTests.Services
             _tokenServiceMock.Setup(x => x.GenerateRefreshToken())
                 .Returns(refreshToken);
 
-            // Act
             var result = await _authService.LoginAsync(loginDto);
 
-            // Assert
             Assert.NotNull(result);
             Assert.Equal(accessToken, result.AccessToken);
             Assert.Equal(refreshToken, result.RefreshToken);
@@ -143,7 +133,6 @@ namespace UserManagement.Application.UnitTests.Services
         [Fact]
         public async Task LoginAsync_InvalidEmail_ThrowsUnauthorizedException()
         {
-            // Arrange
             var loginDto = new LoginDto
             {
                 Email = "nonexistent@example.com",
@@ -153,7 +142,6 @@ namespace UserManagement.Application.UnitTests.Services
             _userRepositoryMock.Setup(x => x.GetByEmailAsync(loginDto.Email, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((User)null);
 
-            // Act & Assert
             await Assert.ThrowsAsync<UnauthorizedException>(() =>
                 _authService.LoginAsync(loginDto));
         }
@@ -161,7 +149,6 @@ namespace UserManagement.Application.UnitTests.Services
         [Fact]
         public async Task LoginAsync_InvalidPassword_ThrowsUnauthorizedException()
         {
-            // Arrange
             var loginDto = new LoginDto
             {
                 Email = "test@example.com",
@@ -175,7 +162,6 @@ namespace UserManagement.Application.UnitTests.Services
             _passwordHasherMock.Setup(x => x.VerifyPassword(loginDto.Password, user.PasswordHash))
                 .Returns(false);
 
-            // Act & Assert
             await Assert.ThrowsAsync<UnauthorizedException>(() =>
                 _authService.LoginAsync(loginDto));
         }
@@ -183,7 +169,6 @@ namespace UserManagement.Application.UnitTests.Services
         [Fact]
         public async Task LoginAsync_InactiveUser_ThrowsBusinessRuleException()
         {
-            // Arrange
             var loginDto = new LoginDto
             {
                 Email = "inactive@example.com",
@@ -197,7 +182,6 @@ namespace UserManagement.Application.UnitTests.Services
             _passwordHasherMock.Setup(x => x.VerifyPassword(loginDto.Password, user.PasswordHash))
                 .Returns(true);
 
-            // Act & Assert
             await Assert.ThrowsAsync<BusinessRuleException>(() =>
                 _authService.LoginAsync(loginDto));
         }
@@ -205,7 +189,6 @@ namespace UserManagement.Application.UnitTests.Services
         [Fact]
         public async Task LoginAsync_EmailNotConfirmed_ThrowsEmailNotConfirmedException()
         {
-            // Arrange
             var loginDto = new LoginDto
             {
                 Email = "unconfirmed@example.com",
@@ -219,7 +202,6 @@ namespace UserManagement.Application.UnitTests.Services
             _passwordHasherMock.Setup(x => x.VerifyPassword(loginDto.Password, user.PasswordHash))
                 .Returns(true);
 
-            // Act & Assert
             await Assert.ThrowsAsync<EmailNotConfirmedException>(() =>
                 _authService.LoginAsync(loginDto));
         }
@@ -227,7 +209,6 @@ namespace UserManagement.Application.UnitTests.Services
         [Fact]
         public async Task ConfirmEmailAsync_ValidToken_ConfirmsEmail()
         {
-            // Arrange
             var token = "valid-token";
             var user = CreateTestUser(emailConfirmed: false);
             user.EmailConfirmationToken = token;
@@ -237,10 +218,8 @@ namespace UserManagement.Application.UnitTests.Services
             _userRepositoryMock.Setup(x => x.UpdateAsync(user, It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
 
-            // Act
             await _authService.ConfirmEmailAsync(token);
 
-            // Assert
             Assert.True(user.EmailConfirmed);
             Assert.Null(user.EmailConfirmationToken);
             _userRepositoryMock.Verify(x => x.UpdateAsync(user, It.IsAny<CancellationToken>()), Times.Once);
@@ -250,12 +229,10 @@ namespace UserManagement.Application.UnitTests.Services
         [Fact]
         public async Task ConfirmEmailAsync_InvalidToken_ThrowsInvalidTokenException()
         {
-            // Arrange
             var token = "invalid-token";
             _userRepositoryMock.Setup(x => x.GetByEmailConfirmationTokenAsync(token, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((User)null);
 
-            // Act & Assert
             await Assert.ThrowsAsync<InvalidTokenException>(() =>
                 _authService.ConfirmEmailAsync(token));
         }
@@ -263,7 +240,6 @@ namespace UserManagement.Application.UnitTests.Services
         [Fact]
         public async Task ForgotPasswordAsync_ValidEmail_GeneratesResetToken()
         {
-            // Arrange
             var email = "test@example.com";
             var user = CreateTestUser(email);
 
@@ -272,10 +248,8 @@ namespace UserManagement.Application.UnitTests.Services
             _userRepositoryMock.Setup(x => x.UpdateAsync(user, It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
 
-            // Act
             await _authService.ForgotPasswordAsync(email);
 
-            // Assert
             Assert.NotNull(user.PasswordResetToken);
             Assert.NotNull(user.ResetTokenExpires);
             _userRepositoryMock.Verify(x => x.UpdateAsync(user, It.IsAny<CancellationToken>()), Times.Once);
@@ -285,15 +259,12 @@ namespace UserManagement.Application.UnitTests.Services
         [Fact]
         public async Task ForgotPasswordAsync_NonExistentEmail_DoesNothing()
         {
-            // Arrange
             var email = "nonexistent@example.com";
             _userRepositoryMock.Setup(x => x.GetByEmailAsync(email, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((User)null);
 
-            // Act
             await _authService.ForgotPasswordAsync(email);
 
-            // Assert
             _userRepositoryMock.Verify(x => x.UpdateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
             _emailServiceMock.Verify(x => x.SendPasswordResetEmailAsync(It.IsAny<string>(), It.IsAny<string>(), default), Times.Never);
         }
@@ -301,7 +272,6 @@ namespace UserManagement.Application.UnitTests.Services
         [Fact]
         public async Task ResetPasswordAsync_ValidToken_ResetsPassword()
         {
-            // Arrange
             var resetDto = new ResetPasswordDto
             {
                 Token = "valid-token",
@@ -321,10 +291,8 @@ namespace UserManagement.Application.UnitTests.Services
             _userRepositoryMock.Setup(x => x.UpdateAsync(user, It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
 
-            // Act
             await _authService.ResetPasswordAsync(resetDto);
 
-            // Assert
             Assert.Equal("hashedNewPassword", user.PasswordHash);
             Assert.Null(user.PasswordResetToken);
             Assert.Null(user.ResetTokenExpires);
@@ -334,7 +302,6 @@ namespace UserManagement.Application.UnitTests.Services
         [Fact]
         public async Task ResetPasswordAsync_InvalidToken_ThrowsInvalidTokenException()
         {
-            // Arrange
             var resetDto = new ResetPasswordDto
             {
                 Token = "invalid-token",
@@ -344,7 +311,6 @@ namespace UserManagement.Application.UnitTests.Services
             _userRepositoryMock.Setup(x => x.GetByPasswordResetTokenAsync(resetDto.Token, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((User)null);
 
-            // Act & Assert
             await Assert.ThrowsAsync<InvalidTokenException>(() =>
                 _authService.ResetPasswordAsync(resetDto));
         }
@@ -352,7 +318,6 @@ namespace UserManagement.Application.UnitTests.Services
         [Fact]
         public async Task ResetPasswordAsync_ExpiredToken_ThrowsInvalidTokenException()
         {
-            // Arrange
             var resetDto = new ResetPasswordDto
             {
                 Token = "expired-token",
@@ -361,12 +326,11 @@ namespace UserManagement.Application.UnitTests.Services
 
             var user = CreateTestUser();
             user.PasswordResetToken = resetDto.Token;
-            user.ResetTokenExpires = DateTime.UtcNow.AddHours(-1); // Expired
+            user.ResetTokenExpires = DateTime.UtcNow.AddHours(-1);
 
             _userRepositoryMock.Setup(x => x.GetByPasswordResetTokenAsync(resetDto.Token, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(user);
 
-            // Act & Assert
             await Assert.ThrowsAsync<InvalidTokenException>(() =>
                 _authService.ResetPasswordAsync(resetDto));
         }
@@ -374,7 +338,6 @@ namespace UserManagement.Application.UnitTests.Services
         [Fact]
         public async Task RefreshTokenAsync_ValidToken_ReturnsNewTokens()
         {
-            // Arrange
             var refreshToken = "valid-refresh-token";
             var userId = Guid.NewGuid();
             var user = CreateTestUser();
@@ -390,10 +353,8 @@ namespace UserManagement.Application.UnitTests.Services
             _tokenServiceMock.Setup(x => x.GenerateRefreshToken())
                 .Returns(newRefreshToken);
 
-            // Act
             var result = await _authService.RefreshTokenAsync(refreshToken);
 
-            // Assert
             Assert.NotNull(result);
             Assert.Equal(newAccessToken, result.AccessToken);
             Assert.Equal(newRefreshToken, result.RefreshToken);
@@ -402,12 +363,10 @@ namespace UserManagement.Application.UnitTests.Services
         [Fact]
         public async Task RefreshTokenAsync_InvalidToken_ThrowsUnauthorizedException()
         {
-            // Arrange
             var refreshToken = "invalid-refresh-token";
             _tokenServiceMock.Setup(x => x.GetUserIdFromToken(refreshToken))
                 .Returns((Guid?)null);
 
-            // Act & Assert
             await Assert.ThrowsAsync<UnauthorizedException>(() =>
                 _authService.RefreshTokenAsync(refreshToken));
         }
@@ -415,7 +374,6 @@ namespace UserManagement.Application.UnitTests.Services
         [Fact]
         public async Task RefreshTokenAsync_UserNotFound_ThrowsUnauthorizedException()
         {
-            // Arrange
             var refreshToken = "valid-refresh-token";
             var userId = Guid.NewGuid();
 
@@ -424,7 +382,6 @@ namespace UserManagement.Application.UnitTests.Services
             _userRepositoryMock.Setup(x => x.GetByIdAsync(userId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((User)null);
 
-            // Act & Assert
             await Assert.ThrowsAsync<UnauthorizedException>(() =>
                 _authService.RefreshTokenAsync(refreshToken));
         }

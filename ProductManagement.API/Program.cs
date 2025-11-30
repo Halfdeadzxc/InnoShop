@@ -17,7 +17,6 @@ namespace ProductManagement.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
             builder.Services.AddControllers()
              .AddJsonOptions(options =>
              {
@@ -27,7 +26,6 @@ namespace ProductManagement.API
              });
             builder.Services.AddEndpointsApiExplorer();
 
-            // Configure Swagger
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo
@@ -42,7 +40,6 @@ namespace ProductManagement.API
                     }
                 });
 
-                // Add JWT Authentication to Swagger
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
@@ -70,11 +67,9 @@ namespace ProductManagement.API
                
             });
 
-            // Add application layers
             builder.Services.AddApplication();
             builder.Services.AddInfrastructure(builder.Configuration);
 
-            // Configure JWT Authentication
             builder.Services.AddAuthentication()
                 .AddJwtBearer(options =>
                 {
@@ -111,7 +106,6 @@ namespace ProductManagement.API
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -130,7 +124,6 @@ namespace ProductManagement.API
 
             app.MapControllers();
 
-            // Initialize database
             if (app.Environment.IsDevelopment())
             {
                 using var scope = app.Services.CreateScope();

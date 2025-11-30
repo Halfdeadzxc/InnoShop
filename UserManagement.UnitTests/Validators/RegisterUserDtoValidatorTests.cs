@@ -18,7 +18,6 @@ namespace UserManagement.UnitTests.Validators
         [InlineData(null)]
         public void Should_HaveError_When_FirstNameIsEmpty(string firstName)
         {
-            // Arrange
             var model = new RegisterUserDto
             {
                 FirstName = firstName,
@@ -27,10 +26,8 @@ namespace UserManagement.UnitTests.Validators
                 Password = "Password123!"
             };
 
-            // Act
             var result = _validator.TestValidate(model);
 
-            // Assert
             result.ShouldHaveValidationErrorFor(x => x.FirstName);
         }
 
@@ -40,7 +37,6 @@ namespace UserManagement.UnitTests.Validators
         [InlineData("John")]
         public void Should_NotHaveError_When_FirstNameIsValid(string firstName)
         {
-            // Arrange
             var model = new RegisterUserDto
             {
                 FirstName = firstName,
@@ -49,10 +45,8 @@ namespace UserManagement.UnitTests.Validators
                 Password = "Password123!"
             };
 
-            // Act
             var result = _validator.TestValidate(model);
 
-            // Assert
             result.ShouldNotHaveValidationErrorFor(x => x.FirstName);
         }
 
@@ -62,7 +56,6 @@ namespace UserManagement.UnitTests.Validators
         [InlineData("@missingusername.com")]
         public void Should_HaveError_When_EmailIsInvalid(string email)
         {
-            // Arrange
             var model = new RegisterUserDto
             {
                 FirstName = "John",
@@ -71,10 +64,8 @@ namespace UserManagement.UnitTests.Validators
                 Password = "Password123!"
             };
 
-            // Act
             var result = _validator.TestValidate(model);
 
-            // Assert
             result.ShouldHaveValidationErrorFor(x => x.Email);
         }
 
@@ -86,7 +77,6 @@ namespace UserManagement.UnitTests.Validators
         [InlineData("NoNumber!")]
         public void Should_HaveError_When_PasswordIsWeak(string password)
         {
-            // Arrange
             var model = new RegisterUserDto
             {
                 FirstName = "John",
@@ -95,10 +85,8 @@ namespace UserManagement.UnitTests.Validators
                 Password = password
             };
 
-            // Act
             var result = _validator.TestValidate(model);
 
-            // Assert
             result.ShouldHaveValidationErrorFor(x => x.Password);
         }
     }

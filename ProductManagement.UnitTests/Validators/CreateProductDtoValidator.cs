@@ -17,7 +17,6 @@ namespace ProductManagement.UnitTests.Validators
         [Fact]
         public void Validate_ValidData_ShouldNotHaveErrors()
         {
-            // Arrange
             var dto = new CreateProductDto
             {
                 Name = "Valid Product Name",
@@ -26,10 +25,8 @@ namespace ProductManagement.UnitTests.Validators
                 IsAvailable = true
             };
 
-            // Act
             var result = _validator.TestValidate(dto);
 
-            // Assert
             result.ShouldNotHaveAnyValidationErrors();
         }
 
@@ -39,7 +36,6 @@ namespace ProductManagement.UnitTests.Validators
         [InlineData(null)]
         public void Validate_EmptyName_ShouldHaveValidationError(string name)
         {
-            // Arrange
             var dto = new CreateProductDto
             {
                 Name = name,
@@ -47,20 +43,19 @@ namespace ProductManagement.UnitTests.Validators
                 Price = 99.99m
             };
 
-            // Act
+            
             var result = _validator.TestValidate(dto);
 
-            // Assert
+            
             result.ShouldHaveValidationErrorFor(x => x.Name)
                 .WithErrorMessage("Product name is required");
         }
 
         [Theory]
-        [InlineData("A")] // 1 character - too short
-        [InlineData("AB")] // 2 characters - valid (boundary case)
+        [InlineData("A")] 
+        [InlineData("AB")] 
         public void Validate_InvalidNameLength_ShouldHaveValidationError(string name)
         {
-            // Arrange
             var dto = new CreateProductDto
             {
                 Name = name,
@@ -68,10 +63,8 @@ namespace ProductManagement.UnitTests.Validators
                 Price = 99.99m
             };
 
-            // Act
             var result = _validator.TestValidate(dto);
 
-            // Assert
             if (name.Length < 2)
             {
                 result.ShouldHaveValidationErrorFor(x => x.Name)
@@ -86,8 +79,7 @@ namespace ProductManagement.UnitTests.Validators
         [Fact]
         public void Validate_NameTooLong_ShouldHaveValidationError()
         {
-            // Arrange
-            var longName = new string('x', 101); // 101 characters - too long
+            var longName = new string('x', 101); 
             var dto = new CreateProductDto
             {
                 Name = longName,
@@ -95,10 +87,8 @@ namespace ProductManagement.UnitTests.Validators
                 Price = 99.99m
             };
 
-            // Act
             var result = _validator.TestValidate(dto);
 
-            // Assert
             result.ShouldHaveValidationErrorFor(x => x.Name)
                 .WithErrorMessage("Product name must be between 2 and 100 characters");
         }
@@ -106,8 +96,7 @@ namespace ProductManagement.UnitTests.Validators
         [Fact]
         public void Validate_NameExactly100Characters_ShouldNotHaveValidationError()
         {
-            // Arrange
-            var exactLengthName = new string('x', 100); // 100 characters - exactly maximum
+            var exactLengthName = new string('x', 100); 
             var dto = new CreateProductDto
             {
                 Name = exactLengthName,
@@ -115,10 +104,8 @@ namespace ProductManagement.UnitTests.Validators
                 Price = 99.99m
             };
 
-            // Act
             var result = _validator.TestValidate(dto);
 
-            // Assert
             result.ShouldNotHaveValidationErrorFor(x => x.Name);
         }
 
@@ -131,7 +118,7 @@ namespace ProductManagement.UnitTests.Validators
         [InlineData("Product>Name")]
         public void Validate_InvalidNameCharacters_ShouldHaveValidationError(string name)
         {
-            // Arrange
+            
             var dto = new CreateProductDto
             {
                 Name = name,
@@ -139,10 +126,9 @@ namespace ProductManagement.UnitTests.Validators
                 Price = 99.99m
             };
 
-            // Act
+            
             var result = _validator.TestValidate(dto);
 
-            // Assert
             result.ShouldHaveValidationErrorFor(x => x.Name)
                 .WithErrorMessage("Product name contains invalid characters");
         }
@@ -153,7 +139,6 @@ namespace ProductManagement.UnitTests.Validators
         [InlineData(null)]
         public void Validate_EmptyDescription_ShouldHaveValidationError(string description)
         {
-            // Arrange
             var dto = new CreateProductDto
             {
                 Name = "Valid Product",
@@ -161,10 +146,8 @@ namespace ProductManagement.UnitTests.Validators
                 Price = 99.99m
             };
 
-            // Act
             var result = _validator.TestValidate(dto);
 
-            // Assert
             result.ShouldHaveValidationErrorFor(x => x.Description)
                 .WithErrorMessage("Product description is required");
         }
@@ -172,18 +155,15 @@ namespace ProductManagement.UnitTests.Validators
         [Fact]
         public void Validate_DescriptionTooShort_ShouldHaveValidationError()
         {
-            // Arrange
             var dto = new CreateProductDto
             {
                 Name = "Valid Product",
-                Description = "Too short", // 9 characters
+                Description = "Too short",
                 Price = 99.99m
             };
 
-            // Act
             var result = _validator.TestValidate(dto);
 
-            // Assert
             result.ShouldHaveValidationErrorFor(x => x.Description)
                 .WithErrorMessage("Product description must be between 10 and 1000 characters");
         }
@@ -191,8 +171,7 @@ namespace ProductManagement.UnitTests.Validators
         [Fact]
         public void Validate_DescriptionTooLong_ShouldHaveValidationError()
         {
-            // Arrange
-            var longDescription = new string('x', 1001); // 1001 characters
+            var longDescription = new string('x', 1001); 
             var dto = new CreateProductDto
             {
                 Name = "Valid Product",
@@ -200,10 +179,8 @@ namespace ProductManagement.UnitTests.Validators
                 Price = 99.99m
             };
 
-            // Act
             var result = _validator.TestValidate(dto);
 
-            // Assert
             result.ShouldHaveValidationErrorFor(x => x.Description)
                 .WithErrorMessage("Product description must be between 10 and 1000 characters");
         }
@@ -211,8 +188,7 @@ namespace ProductManagement.UnitTests.Validators
         [Fact]
         public void Validate_DescriptionExactly10Characters_ShouldNotHaveValidationError()
         {
-            // Arrange
-            var exactLengthDescription = new string('x', 10); // 10 characters - exactly minimum
+            var exactLengthDescription = new string('x', 10); 
             var dto = new CreateProductDto
             {
                 Name = "Valid Product",
@@ -220,18 +196,15 @@ namespace ProductManagement.UnitTests.Validators
                 Price = 99.99m
             };
 
-            // Act
             var result = _validator.TestValidate(dto);
 
-            // Assert
             result.ShouldNotHaveValidationErrorFor(x => x.Description);
         }
 
         [Fact]
         public void Validate_DescriptionExactly1000Characters_ShouldNotHaveValidationError()
         {
-            // Arrange
-            var exactLengthDescription = new string('x', 1000); // 1000 characters - exactly maximum
+            var exactLengthDescription = new string('x', 1000); 
             var dto = new CreateProductDto
             {
                 Name = "Valid Product",
@@ -239,10 +212,8 @@ namespace ProductManagement.UnitTests.Validators
                 Price = 99.99m
             };
 
-            // Act
             var result = _validator.TestValidate(dto);
 
-            // Assert
             result.ShouldNotHaveValidationErrorFor(x => x.Description);
         }
 
@@ -252,7 +223,6 @@ namespace ProductManagement.UnitTests.Validators
         [InlineData(-100)]
         public void Validate_InvalidPrice_ShouldHaveValidationError(decimal price)
         {
-            // Arrange
             var dto = new CreateProductDto
             {
                 Name = "Valid Product",
@@ -260,10 +230,8 @@ namespace ProductManagement.UnitTests.Validators
                 Price = price
             };
 
-            // Act
             var result = _validator.TestValidate(dto);
 
-            // Assert
             result.ShouldHaveValidationErrorFor(x => x.Price)
                 .WithErrorMessage("Price must be greater than 0");
         }
@@ -271,7 +239,6 @@ namespace ProductManagement.UnitTests.Validators
         [Fact]
         public void Validate_PriceTooHigh_ShouldHaveValidationError()
         {
-            // Arrange
             var dto = new CreateProductDto
             {
                 Name = "Valid Product",
@@ -279,10 +246,8 @@ namespace ProductManagement.UnitTests.Validators
                 Price = 1000001
             };
 
-            // Act
             var result = _validator.TestValidate(dto);
 
-            // Assert
             result.ShouldHaveValidationErrorFor(x => x.Price)
                 .WithErrorMessage("Price must be less than or equal to 1,000,000");
         }
@@ -298,7 +263,6 @@ namespace ProductManagement.UnitTests.Validators
         [InlineData("Product?")]
         public void Validate_ValidNameCharacters_ShouldNotHaveValidationError(string name)
         {
-            // Arrange
             var dto = new CreateProductDto
             {
                 Name = name,
@@ -306,10 +270,8 @@ namespace ProductManagement.UnitTests.Validators
                 Price = 99.99m
             };
 
-            // Act
             var result = _validator.TestValidate(dto);
 
-            // Assert
             result.ShouldNotHaveValidationErrorFor(x => x.Name);
         }
 
@@ -318,10 +280,10 @@ namespace ProductManagement.UnitTests.Validators
         [InlineData(1)]
         [InlineData(100)]
         [InlineData(999999.99)]
-        [InlineData(1000000)] // Maximum allowed price
+        [InlineData(1000000)] 
         public void Validate_ValidPrice_ShouldNotHaveValidationError(decimal price)
         {
-            // Arrange
+            
             var dto = new CreateProductDto
             {
                 Name = "Valid Product",
@@ -329,17 +291,14 @@ namespace ProductManagement.UnitTests.Validators
                 Price = price
             };
 
-            // Act
             var result = _validator.TestValidate(dto);
 
-            // Assert
             result.ShouldNotHaveValidationErrorFor(x => x.Price);
         }
 
         [Fact]
         public void Validate_PriceExactlyOneMillion_ShouldNotHaveValidationError()
         {
-            // Arrange
             var dto = new CreateProductDto
             {
                 Name = "Valid Product",
@@ -347,10 +306,8 @@ namespace ProductManagement.UnitTests.Validators
                 Price = 1000000
             };
 
-            // Act
             var result = _validator.TestValidate(dto);
 
-            // Assert
             result.ShouldNotHaveValidationErrorFor(x => x.Price);
         }
     }

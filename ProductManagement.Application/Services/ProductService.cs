@@ -76,7 +76,6 @@ namespace ProductManagement.Application.Services
         {
             _logger.LogInformation("Getting products for user: {UserId}", userId);
 
-            // Validate user exists and is active
             if (!await _userCommunicationService.ValidateUserActiveAsync(userId, cancellationToken))
             {
                 throw new UserNotActiveException(userId);
@@ -92,13 +91,11 @@ namespace ProductManagement.Application.Services
         {
             _logger.LogInformation("Creating product for user: {UserId}", userId);
 
-            // Validate user exists and is active
             if (!await _userCommunicationService.ValidateUserActiveAsync(userId, cancellationToken))
             {
                 throw new UserNotActiveException(userId);
             }
 
-            // Check for duplicate product name for this user
             var existingProduct = await _productRepository.GetByNameAndUserAsync(createDto.Name, userId, cancellationToken);
             if (existingProduct != null && !existingProduct.IsDeleted)
             {
@@ -131,7 +128,6 @@ namespace ProductManagement.Application.Services
                 throw new ProductNotFoundException(id);
             }
 
-            // Check if user owns the product
             if (product.UserId != userId)
             {
                 throw new ProductAccessDeniedException(id, userId);
@@ -176,13 +172,11 @@ namespace ProductManagement.Application.Services
                 throw new ProductNotFoundException(id);
             }
 
-            // Check if user owns the product
             if (product.UserId != userId)
             {
                 throw new ProductAccessDeniedException(id, userId);
             }
 
-            // Soft delete
             product.IsDeleted = true;
             product.UpdateTimestamps();
 
@@ -200,7 +194,6 @@ namespace ProductManagement.Application.Services
                 throw new ProductNotFoundException(id);
             }
 
-            // Check if user owns the product
             if (product.UserId != userId)
             {
                 throw new ProductAccessDeniedException(id, userId);
@@ -235,7 +228,6 @@ namespace ProductManagement.Application.Services
         {
             _logger.LogDebug("Getting total products value for user: {UserId}", userId);
 
-            // This would need to be implemented in repository
             var products = await _productRepository.GetPagedAsync(1, int.MaxValue, null, null, null, null, userId, null, false, cancellationToken);
             return products.Sum(p => p.Price);
         }

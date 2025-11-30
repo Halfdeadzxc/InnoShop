@@ -39,13 +39,11 @@ namespace UserManagement.Infrastructure.Security
 
             var password = new char[length];
 
-            // Ensure at least one character from each category
             password[0] = upperCase[random.Next(upperCase.Length)];
             password[1] = lowerCase[random.Next(lowerCase.Length)];
             password[2] = digits[random.Next(digits.Length)];
             password[3] = specialChars[random.Next(specialChars.Length)];
 
-            // Fill the rest with random characters from all categories
             for (int i = 4; i < length; i++)
             {
                 password[i] = allChars[random.Next(allChars.Length)];

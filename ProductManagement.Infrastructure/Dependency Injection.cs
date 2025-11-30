@@ -16,22 +16,17 @@ namespace ProductManagement.Infrastructure
             this IServiceCollection services,
             IConfiguration configuration)
         {
-            // Database
             services.AddDbContext<ProductDbContext>(options =>
                 options.UseNpgsql(
                     configuration.GetConnectionString("DefaultConnection"),
                     b => b.MigrationsAssembly(typeof(ProductDbContext).Assembly.FullName)));
 
-            // Repositories
             services.AddScoped<IProductRepository, ProductRepository>();
 
-            // External Services
             services.AddScoped<IUserCommunicationService, UserCommunicationService>();
 
-            // Configuration
             services.Configure<UserServiceSettings>(configuration.GetSection("UserService"));
 
-            // HTTP Client for User Service Communication
             services.AddHttpClient<IUserCommunicationService, UserCommunicationService>((serviceProvider, client) =>
             {
                 var settings = serviceProvider.GetRequiredService<IOptions<UserServiceSettings>>().Value;

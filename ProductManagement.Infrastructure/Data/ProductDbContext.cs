@@ -51,7 +51,6 @@ namespace ProductManagement.Infrastructure.Data
                 entity.Property(p => p.UpdatedAt)
                     .IsRequired(false);
 
-                // Indexes for performance
                 entity.HasIndex(p => p.UserId);
                 entity.HasIndex(p => p.IsAvailable);
                 entity.HasIndex(p => p.IsDeleted);
@@ -60,7 +59,6 @@ namespace ProductManagement.Infrastructure.Data
                     .IsUnique()
                     .HasFilter("[IsDeleted] = 0");
 
-                // Query filter for soft delete
                 entity.HasQueryFilter(p => !p.IsDeleted);
             });
         }

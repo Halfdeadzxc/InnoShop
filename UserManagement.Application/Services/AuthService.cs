@@ -135,7 +135,6 @@ namespace UserManagement.Application.Services
 
             await _userRepository.UpdateAsync(user, cancellationToken);
 
-            // Send welcome email in background
             _ = Task.Run(async () =>
             {
                 try
@@ -174,7 +173,6 @@ namespace UserManagement.Application.Services
 
             await _userRepository.UpdateAsync(user, cancellationToken);
 
-            // Send password reset email in background
             _ = Task.Run(async () =>
             {
                 try
@@ -220,7 +218,6 @@ namespace UserManagement.Application.Services
         {
             _logger.LogInformation("Refreshing token");
 
-            // Validate refresh token
             var userId = _tokenService.GetUserIdFromToken(refreshToken);
             if (userId == null)
             {

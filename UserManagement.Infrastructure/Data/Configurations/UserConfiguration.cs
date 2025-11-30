@@ -63,17 +63,14 @@ namespace UserManagement.Infrastructure.Data.Configurations
 
             builder.Property(u => u.UpdatedAt);
 
-            // Indexes for performance
             builder.HasIndex(u => u.EmailConfirmed);
             builder.HasIndex(u => u.IsActive);
             builder.HasIndex(u => u.Role);
             builder.HasIndex(u => u.CreatedAt);
 
-            // Index for email confirmation tokens - ИСПРАВЛЕНО для PostgreSQL
             builder.HasIndex(u => u.EmailConfirmationToken)
                 .HasFilter("\"EmailConfirmationToken\" IS NOT NULL");
 
-            // Index for password reset tokens - ИСПРАВЛЕНО для PostgreSQL
             builder.HasIndex(u => u.PasswordResetToken)
                 .HasFilter("\"PasswordResetToken\" IS NOT NULL");
         }

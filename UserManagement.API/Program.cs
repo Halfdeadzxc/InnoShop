@@ -29,7 +29,6 @@ namespace UserManagement.API
 
             builder.Services.AddEndpointsApiExplorer();
 
-            // Configure Swagger
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo
@@ -123,7 +122,6 @@ namespace UserManagement.API
 
             app.MapControllers();
 
-            // Initialize database
             using (var scope = app.Services.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<UserManagement.Infrastructure.Data.UserDbContext>();

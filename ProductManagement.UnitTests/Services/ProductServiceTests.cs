@@ -34,16 +34,13 @@ namespace ProductManagement.UnitTests.Services
         [Fact]
         public async Task GetProductByIdAsync_ProductExists_ReturnsProductDto()
         {
-            // Arrange
             var productId = Guid.NewGuid();
             var product = CreateTestProduct(productId);
             _productRepositoryMock.Setup(x => x.GetByIdAsync(productId, _cancellationToken))
                 .ReturnsAsync(product);
 
-            // Act
             var result = await _productService.GetProductByIdAsync(productId, _cancellationToken);
 
-            // Assert
             Assert.NotNull(result);
             Assert.Equal(productId, result.Id);
             Assert.Equal(product.Name, result.Name);
@@ -53,12 +50,10 @@ namespace ProductManagement.UnitTests.Services
         [Fact]
         public async Task GetProductByIdAsync_ProductNotFound_ThrowsProductNotFoundException()
         {
-            // Arrange
             var productId = Guid.NewGuid();
             _productRepositoryMock.Setup(x => x.GetByIdAsync(productId, _cancellationToken))
                 .ReturnsAsync((Product)null);
 
-            // Act & Assert
             await Assert.ThrowsAsync<ProductNotFoundException>(() =>
                 _productService.GetProductByIdAsync(productId, _cancellationToken));
         }
@@ -66,13 +61,11 @@ namespace ProductManagement.UnitTests.Services
         [Fact]
         public async Task GetProductByIdAsync_ProductDeleted_ThrowsProductNotFoundException()
         {
-            // Arrange
             var productId = Guid.NewGuid();
             var product = CreateTestProduct(productId, isDeleted: true);
             _productRepositoryMock.Setup(x => x.GetByIdAsync(productId, _cancellationToken))
                 .ReturnsAsync(product);
 
-            // Act & Assert
             await Assert.ThrowsAsync<ProductNotFoundException>(() =>
                 _productService.GetProductByIdAsync(productId, _cancellationToken));
         }
@@ -80,7 +73,6 @@ namespace ProductManagement.UnitTests.Services
         [Fact]
         public async Task GetProductsAsync_ValidQuery_ReturnsPagedResponse()
         {
-            // Arrange
             var query = new ProductQueryDto
             {
                 Page = 1,
@@ -119,10 +111,8 @@ namespace ProductManagement.UnitTests.Services
                 _cancellationToken))
                 .ReturnsAsync(totalCount);
 
-            // Act
             var result = await _productService.GetProductsAsync(query, _cancellationToken);
 
-            // Assert
             Assert.NotNull(result);
             Assert.Single(result.Items);
             Assert.Equal(totalCount, result.TotalCount);
@@ -133,7 +123,6 @@ namespace ProductManagement.UnitTests.Services
         [Fact]
         public async Task GetProductsByUserAsync_ValidUser_ReturnsProducts()
         {
-            // Arrange
             var userId = Guid.NewGuid();
             var products = new List<Product> { CreateTestProduct(userId: userId) };
 
@@ -142,10 +131,8 @@ namespace ProductManagement.UnitTests.Services
             _productRepositoryMock.Setup(x => x.GetByUserIdAsync(userId, _cancellationToken))
                 .ReturnsAsync(products);
 
-            // Act
             var result = await _productService.GetProductsByUserAsync(userId, _cancellationToken);
 
-            // Assert
             Assert.NotNull(result);
             Assert.Single(result);
             Assert.Equal(userId, result.First().UserId);
@@ -154,12 +141,10 @@ namespace ProductManagement.UnitTests.Services
         [Fact]
         public async Task GetProductsByUserAsync_UserNotActive_ThrowsUserNotActiveException()
         {
-            // Arrange
             var userId = Guid.NewGuid();
             _userCommunicationServiceMock.Setup(x => x.ValidateUserActiveAsync(userId, _cancellationToken))
                 .ReturnsAsync(false);
 
-            // Act & Assert
             await Assert.ThrowsAsync<UserNotActiveException>(() =>
                 _productService.GetProductsByUserAsync(userId, _cancellationToken));
         }
@@ -167,7 +152,6 @@ namespace ProductManagement.UnitTests.Services
         [Fact]
         public async Task CreateProductAsync_ValidData_CreatesProduct()
         {
-            // Arrange
             var userId = Guid.NewGuid();
             var createDto = new CreateProductDto
             {
@@ -182,12 +166,10 @@ namespace ProductManagement.UnitTests.Services
             _productRepositoryMock.Setup(x => x.GetByNameAndUserAsync(createDto.Name, userId, _cancellationToken))
                 .ReturnsAsync((Product)null);
             _productRepositoryMock.Setup(x => x.AddAsync(It.IsAny<Product>(), _cancellationToken))
-                .ReturnsAsync((Product product, CancellationToken ct) => product); // Исправлено здесь
+                .ReturnsAsync((Product product, CancellationToken ct) => product);
 
-            // Act
             var result = await _productService.CreateProductAsync(userId, createDto, _cancellationToken);
 
-            // Assert
             Assert.NotNull(result);
             Assert.Equal(createDto.Name, result.Name);
             Assert.Equal(createDto.Description, result.Description);
@@ -199,7 +181,6 @@ namespace ProductManagement.UnitTests.Services
         [Fact]
         public async Task CreateProductAsync_UserNotActive_ThrowsUserNotActiveException()
         {
-            // Arrange
             var userId = Guid.NewGuid();
             var createDto = new CreateProductDto
             {
@@ -211,7 +192,6 @@ namespace ProductManagement.UnitTests.Services
             _userCommunicationServiceMock.Setup(x => x.ValidateUserActiveAsync(userId, _cancellationToken))
                 .ReturnsAsync(false);
 
-            // Act & Assert
             await Assert.ThrowsAsync<UserNotActiveException>(() =>
                 _productService.CreateProductAsync(userId, createDto, _cancellationToken));
         }
@@ -219,7 +199,6 @@ namespace ProductManagement.UnitTests.Services
         [Fact]
         public async Task CreateProductAsync_DuplicateName_ThrowsProductNameConflictException()
         {
-            // Arrange
             var userId = Guid.NewGuid();
             var createDto = new CreateProductDto
             {
@@ -234,7 +213,6 @@ namespace ProductManagement.UnitTests.Services
             _productRepositoryMock.Setup(x => x.GetByNameAndUserAsync(createDto.Name, userId, _cancellationToken))
                 .ReturnsAsync(existingProduct);
 
-            // Act & Assert
             await Assert.ThrowsAsync<ProductNameConflictException>(() =>
                 _productService.CreateProductAsync(userId, createDto, _cancellationToken));
         }
@@ -242,7 +220,6 @@ namespace ProductManagement.UnitTests.Services
         [Fact]
         public async Task UpdateProductAsync_ValidData_UpdatesProduct()
         {
-            // Arrange
             var productId = Guid.NewGuid();
             var userId = Guid.NewGuid();
             var product = CreateTestProduct(productId, userId);
@@ -261,10 +238,8 @@ namespace ProductManagement.UnitTests.Services
             _productRepositoryMock.Setup(x => x.UpdateAsync(product, _cancellationToken))
                 .ReturnsAsync(product);
 
-            // Act
             var result = await _productService.UpdateProductAsync(productId, userId, updateDto, _cancellationToken);
 
-            // Assert
             Assert.NotNull(result);
             Assert.Equal(updateDto.Name, result.Name);
             Assert.Equal(updateDto.Description, result.Description);
@@ -276,7 +251,6 @@ namespace ProductManagement.UnitTests.Services
         [Fact]
         public async Task UpdateProductAsync_ProductNotFound_ThrowsProductNotFoundException()
         {
-            // Arrange
             var productId = Guid.NewGuid();
             var userId = Guid.NewGuid();
             var updateDto = new UpdateProductDto { Name = "Updated Product" };
@@ -284,7 +258,6 @@ namespace ProductManagement.UnitTests.Services
             _productRepositoryMock.Setup(x => x.GetByIdAsync(productId, _cancellationToken))
                 .ReturnsAsync((Product)null);
 
-            // Act & Assert
             await Assert.ThrowsAsync<ProductNotFoundException>(() =>
                 _productService.UpdateProductAsync(productId, userId, updateDto, _cancellationToken));
         }
@@ -292,7 +265,6 @@ namespace ProductManagement.UnitTests.Services
         [Fact]
         public async Task UpdateProductAsync_UserNotOwner_ThrowsProductAccessDeniedException()
         {
-            // Arrange
             var productId = Guid.NewGuid();
             var ownerUserId = Guid.NewGuid();
             var requesterUserId = Guid.NewGuid();
@@ -302,7 +274,6 @@ namespace ProductManagement.UnitTests.Services
             _productRepositoryMock.Setup(x => x.GetByIdAsync(productId, _cancellationToken))
                 .ReturnsAsync(product);
 
-            // Act & Assert
             await Assert.ThrowsAsync<ProductAccessDeniedException>(() =>
                 _productService.UpdateProductAsync(productId, requesterUserId, updateDto, _cancellationToken));
         }
@@ -310,7 +281,6 @@ namespace ProductManagement.UnitTests.Services
         [Fact]
         public async Task DeleteProductAsync_ValidProduct_SoftDeletesProduct()
         {
-            // Arrange
             var productId = Guid.NewGuid();
             var userId = Guid.NewGuid();
             var product = CreateTestProduct(productId, userId);
@@ -320,10 +290,8 @@ namespace ProductManagement.UnitTests.Services
             _productRepositoryMock.Setup(x => x.UpdateAsync(product, _cancellationToken))
                 .ReturnsAsync(product);
 
-            // Act
             await _productService.DeleteProductAsync(productId, userId, _cancellationToken);
 
-            // Assert
             Assert.True(product.IsDeleted);
             _productRepositoryMock.Verify(x => x.UpdateAsync(product, _cancellationToken), Times.Once);
         }
@@ -331,7 +299,6 @@ namespace ProductManagement.UnitTests.Services
         [Fact]
         public async Task ToggleProductStatusAsync_ValidProduct_TogglesStatus()
         {
-            // Arrange
             var productId = Guid.NewGuid();
             var userId = Guid.NewGuid();
             var product = CreateTestProduct(productId, userId, isAvailable: true);
@@ -341,11 +308,9 @@ namespace ProductManagement.UnitTests.Services
             _productRepositoryMock.Setup(x => x.UpdateAsync(product, _cancellationToken))
                 .ReturnsAsync(product);
 
-            // Act
             var result = await _productService.ToggleProductStatusAsync(productId, userId, _cancellationToken);
 
-            // Assert
-            Assert.False(result); // Status should be toggled from true to false
+            Assert.False(result);
             Assert.False(product.IsAvailable);
             _productRepositoryMock.Verify(x => x.UpdateAsync(product, _cancellationToken), Times.Once);
         }
@@ -353,7 +318,6 @@ namespace ProductManagement.UnitTests.Services
         [Fact]
         public async Task GetProductsCountAsync_WithQuery_ReturnsCount()
         {
-            // Arrange
             var query = new ProductQueryDto
             {
                 Search = "test",
@@ -373,17 +337,14 @@ namespace ProductManagement.UnitTests.Services
                 _cancellationToken))
                 .ReturnsAsync(expectedCount);
 
-            // Act
             var result = await _productService.GetProductsCountAsync(query, _cancellationToken);
 
-            // Assert
             Assert.Equal(expectedCount, result);
         }
 
         [Fact]
         public async Task GetTotalProductsValueAsync_WithUserId_ReturnsTotalValue()
         {
-            // Arrange
             var userId = Guid.NewGuid();
             var products = new List<Product>
             {
@@ -396,17 +357,14 @@ namespace ProductManagement.UnitTests.Services
                 1, int.MaxValue, null, null, null, null, userId, null, false, _cancellationToken))
                 .ReturnsAsync(products);
 
-            // Act
             var result = await _productService.GetTotalProductsValueAsync(userId, _cancellationToken);
 
-            // Assert
-            Assert.Equal(600m, result); // 100 + 200 + 300
+            Assert.Equal(600m, result);
         }
 
         [Fact]
         public async Task BulkUpdateStatusAsync_ValidProducts_UpdatesAllProducts()
         {
-            // Arrange
             var userId = Guid.NewGuid();
             var productIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
             var bulkUpdateDto = new BulkUpdateStatusDto
@@ -421,10 +379,8 @@ namespace ProductManagement.UnitTests.Services
             _productRepositoryMock.Setup(x => x.BulkUpdateAsync(It.IsAny<List<Product>>(), _cancellationToken))
                 .Returns(Task.CompletedTask);
 
-            // Act
             await _productService.BulkUpdateStatusAsync(userId, bulkUpdateDto, _cancellationToken);
 
-            // Assert
             Assert.All(products, p => Assert.False(p.IsAvailable));
             _productRepositoryMock.Verify(x => x.BulkUpdateAsync(products, _cancellationToken), Times.Once);
         }
@@ -432,7 +388,6 @@ namespace ProductManagement.UnitTests.Services
         [Fact]
         public async Task BulkUpdateStatusAsync_NoValidProducts_ThrowsProductNotFoundException()
         {
-            // Arrange
             var userId = Guid.NewGuid();
             var productIds = new List<Guid> { Guid.NewGuid() };
             var bulkUpdateDto = new BulkUpdateStatusDto
@@ -440,12 +395,11 @@ namespace ProductManagement.UnitTests.Services
                 ProductIds = productIds,
                 IsAvailable = false
             };
-            var products = new List<Product>(); // Empty list - no valid products
+            var products = new List<Product>();
 
             _productRepositoryMock.Setup(x => x.GetByIdsAsync(productIds, _cancellationToken))
                 .ReturnsAsync(products);
 
-            // Act & Assert
             await Assert.ThrowsAsync<ProductNotFoundException>(() =>
                 _productService.BulkUpdateStatusAsync(userId, bulkUpdateDto, _cancellationToken));
         }
@@ -453,7 +407,6 @@ namespace ProductManagement.UnitTests.Services
         [Fact]
         public async Task GetRecentProductsAsync_ValidCount_ReturnsRecentProducts()
         {
-            // Arrange
             var count = 5;
             var products = new List<Product>
             {
@@ -465,10 +418,8 @@ namespace ProductManagement.UnitTests.Services
             _productRepositoryMock.Setup(x => x.GetRecentAsync(count, _cancellationToken))
                 .ReturnsAsync(products);
 
-            // Act
             var result = await _productService.GetRecentProductsAsync(count, _cancellationToken);
 
-            // Assert
             Assert.NotNull(result);
             Assert.Equal(products.Count, result.Count);
         }
