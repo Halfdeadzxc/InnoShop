@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: innoshop-postgres
+    environment:
+      POSTGRES_MULTIPLE_DATABASES: "UserManagementDb,ProductManagementDb"
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - innoshop-network
+
+  user-management-api:
+    build:
+      context: .
+      dockerfile: UserManagement.API/Dockerfile
+    container_name: innoshop-user-api
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=UserManagementDb;Username=postgres;Password=postgres;Pooling=true;
+      - ProductService__BaseUrl=http://product-management-api:8080
+    depends_on:
+      - postgres
+    networks:
+      - innoshop-network
+
+  product-management-api:
+    build:
+      context: .
+      dockerfile: ProductManagement.API/Dockerfile
+    container_name: innoshop-product-api
+    ports:
+      - "5001:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ProductManagementDb;Username=postgres;Password=postgres;Pooling=true;
+      - UserService__BaseUrl=http://user-management-api:8080
+    depends_on:
+      - postgres
+      - user-management-api
+    networks:
+      - innoshop-network
+
+volumes:
+  postgres_data:
+
+networks:
+  innoshop-network:
+    driver: bridge
