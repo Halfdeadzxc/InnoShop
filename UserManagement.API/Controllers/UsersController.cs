@@ -62,7 +62,6 @@ namespace UserManagement.API.Controllers
             [FromBody] UpdateUserDto updateDto,
             CancellationToken cancellationToken = default)
         {
-            // Users can only update their own profile, unless they're admin
             if (id != _currentUserService.UserId && !_currentUserService.IsInRole(UserRole.Admin.ToString()))
             {
                 return Forbid();
@@ -79,7 +78,6 @@ namespace UserManagement.API.Controllers
             Guid id,
             CancellationToken cancellationToken = default)
         {
-            // Users can only delete their own profile, unless they're admin
             if (id != _currentUserService.UserId && !_currentUserService.IsInRole(UserRole.Admin.ToString()))
             {
                 return Forbid();
