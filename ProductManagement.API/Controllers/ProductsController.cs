@@ -161,5 +161,71 @@ namespace ProductManagement.API.Controllers
             var count = await _productService.GetProductsCountAsync(query, cancellationToken);
             return Ok(count);
         }
+
+        [HttpPost("toggle-user-products")]
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ToggleUserProducts(
+            [FromBody] ToggleUserProductsRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Toggling products for user {UserId} to {IsActive}",
+                request.UserId, request.IsActive);
+
+            var currentUserId = _currentUserService.GetRequiredUserId();
+
+            var userProducts = await _productService.GetProductsByUserAsync(request.UserId, cancellationToken);
+
+            if (!userProducts.Any())
+            {
+                _logger.LogInformation("No products found for user {UserId}", request.UserId);
+                return Ok(new { message = "No products found for user" });
+            }
+
+            var productIds = userProducts.Select(p => p.Id).ToList();
+            var bulkUpdateDto = new BulkUpdateStatusDto
+            {
+                ProductIds = productIds,
+                IsAvailable = request.IsActive
+            };
+
+            await _productService.BulkUpdateStatusAsync(request.UserId, bulkUpdateDto, cancellationToken);
+
+            _logger.LogInformation("Successfully toggled {Count} products for user {UserId} to {IsActive}",
+                productIds.Count, request.UserId, request.IsActive);
+
+            return Ok(new
+            {
+                message = $"Successfully updated {productIds.Count} products",
+                updatedCount = productIds.Count
+            });
+        }
+
+        [HttpGet("user/{userId:guid}/count")]
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<int>> GetUserProductsCount(
+            Guid userId,
+            CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Getting products count for user {UserId}", userId);
+
+            var products = await _productService.GetProductsByUserAsync(userId, cancellationToken);
+            return Ok(products.Count);
+        }
+
+        [HttpGet("total-value")]
+        [ProducesResponseType(typeof(decimal), StatusCodes.Status200OK)]
+        public async Task<ActionResult<decimal>> GetTotalProductsValue(
+            [FromQuery] Guid? userId = null,
+            CancellationToken cancellationToken = default)
+        {
+            _logger.LogDebug("Getting total products value for user: {UserId}", userId);
+
+            var totalValue = await _productService.GetTotalProductsValueAsync(userId, cancellationToken);
+            return Ok(new { totalValue });
+        }
     }
 }
